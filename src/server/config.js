@@ -3,6 +3,7 @@ const path = require('path');
 const exphbs = require('express-handlebars');
 const morgan = require('morgan');
 const multer = require('multer');
+const erroHandler = require('errorhandler');
 
 const routes = require('../routes');
 
@@ -34,7 +35,14 @@ module.exports = app => {
 
   // Rotas
   routes(app);
-  //
+
+  // Conteudo estático
+  app.use('/public', express.static(path.join(__dirname, '../public')));
+
+  // Erros handlers
+  if ('development' === app.get('env')) {
+    app.use(erroHandler);
+  }
 
   return app;
 };
