@@ -1,8 +1,9 @@
 const path = require('path');
 const fs = require('fs-extra');
+const md5 = require('md5');
 
 const { randomNumber } = require('../helpers/libs');
-const { Image } = require('../models');
+const { Image, Comment } = require('../models');
 
 module.exports = {
   getImageId: async (req, res) => {
@@ -59,8 +60,18 @@ module.exports = {
     res.send('Página like imagnes');
   },
 
-  commentImage: (req, res) => {
-    res.send('Página comentar imagens');
+  commentImage: async (req, res) => {
+    const image = await Image.findOne({
+      filename: { $regex: req.params.id_image }
+    });
+
+    if (image) {
+      const newComment = new Comment(req.body);
+      newComment.gravatar = md5(newComment.email);
+      newComment.id_image = image._id;
+      await newComment.save();
+      res.redirect(`/images/${image.uniqueId}`);
+    }
   },
 
   removeImage: (req, res) => {
