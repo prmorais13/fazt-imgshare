@@ -5,8 +5,12 @@ const { randomNumber } = require('../helpers/libs');
 const { Image } = require('../models');
 
 module.exports = {
-  getImageId: (req, res) => {
-    res.send(`Imagem número: ${req.params.id_image}`);
+  getImageId: async (req, res) => {
+    const image = await Image.findOne({
+      filename: { $regex: req.params.id_image }
+    });
+
+    res.render('image', { image });
   },
 
   createImage: (req, res) => {
@@ -37,8 +41,8 @@ module.exports = {
           });
 
           const imageSaved = await newImage.save();
-          // res.redirect('/images');
-          res.send('Concluido!');
+          res.redirect('/images/' + imgUrl);
+          // res.send('Concluido!');
         } else {
           await fs.unlink(imageTempPath);
           res
