@@ -7,13 +7,26 @@ const { Image, Comment } = require('../models');
 
 module.exports = {
   getImageId: async (req, res) => {
+    const viewModel = { image: {}, comments: {} };
+
     const image = await Image.findOne({
       filename: { $regex: req.params.id_image }
     });
 
-    const comments = await Comment.find({ id_image: image._id });
+    if (image) {
+      image.views = image.views + 1;
 
-    res.render('image', { image, comments });
+      viewModel.image = image;
+
+      await image.save();
+      const comments = await Comment.find({ id_image: image._id });
+
+      viewModel.comments = comments;
+      // res.render('image', { image, comments });
+      res.render('image', viewModel);
+    } else {
+      res.redirect('/');
+    }
   },
 
   createImage: (req, res) => {
@@ -73,6 +86,8 @@ module.exports = {
       newComment.id_image = image._id;
       await newComment.save();
       res.redirect(`/images/${image.uniqueId}`);
+    } else {
+      res.redirect('/');
     }
   },
 
