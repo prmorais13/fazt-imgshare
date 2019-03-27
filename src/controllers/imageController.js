@@ -11,7 +11,9 @@ module.exports = {
       filename: { $regex: req.params.id_image }
     });
 
-    res.render('image', { image });
+    const comments = await Comment.find({ id_image: image._id });
+
+    res.render('image', { image, comments });
   },
 
   createImage: (req, res) => {
